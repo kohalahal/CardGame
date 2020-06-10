@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카드 게임</title>
+    <style>
+        /* 전체 바디 */
+        body {
+            width:90%;
+        }
+        /* 제목 부분 */
+        header {
+            background-color: rgb(23, 1, 75);
+            text-align: center;
+            padding:10px 0px 10px 0px;
+        }
+
+        h1 {
+            color: burlywood;            
+        }
+        /* 전체 게임 칸 */
+        #game {
+            width:100%;
+            text-align: center;
+        }
+
+        h2 {
+            padding:10px;
+            margin: 0 auto;
+            background-color: antiquewhite;
+            color:rgb(85, 0, 64);
+        }
+
+        /* 카드 칸 */
+        #card-carpet {
+            background-color: rgb(218, 160, 160);
+            padding:10px;
+            margin: 0 auto;
+        }
+        /* 카드 한 줄 */
+        .card-row {
+            width: 100%;
+            
+        }
+        /* 개별 덱칸 */
+        .card {
+            width: 12%;  
+            max-width: 100px;         
+            align-self: start;
+            position: relative;
+            display: inline-block;
+            margin: 5px;      
+            /* border:3px solid yellow;     */
+            padding: 3px;      
+        }
+
+        .card .front {            
+            width: 100%;             
+        }
+
+        .card .back {
+            width: 100%;
+            position: absolute;
+            opacity: 50%;
+        }
+        /* 버튼 부분 */
+        #buttons {
+            padding: 20Px;
+            margin:5px;
+        }
+
+        button {
+            border: 5px solid #3c73ff;
+            background-color: #3c73ff;
+            border-radius: 20px;
+            color: #fff;
+            margin: 5px;
+
+        }
+
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>카드 게임</h1>
+    </header>
+    <article>
+        <div id="game">
+            <h2 id="game-info"></h2>
+
+            <div id="card-carpet">    
+                       
+            </div>
+            <div id="buttons">                
+                <button id="btnShow" onclick="btnShow()">보이기</button>
+                <button id="btnHide" onclick="btnHide()">감추기</button> 
+                <button id="btnShuffle" onclick="btnRearrange()">섞기/새로하기</button>
+            </div>
+
+    </article>
+</body>
+<script>
+//테스트용 변수. 진짜 게임하려면 1로. 카드 조금보이게하려면 0.5로.
+var opacity=1;
+    
+//버튼 펑션
+function btnShow() {
+    //카드 뒷변의 opacity를 0으로
+    var back=document.getElementsByClassName("back");
+    for(i=0; i<back.length;i++) {
+        back[i].setAttribute("style","opacity:0;");
+    }
+}
+
+function btnHide() {
+    //카드 뒷변의 opacity를 1로
+    var back=document.getElementsByClassName("back");
+    for(i=0; i<back.length;i++) {
+        back[i].setAttribute("style","opacity:1;");
+    }
+}
+
+function btnRearrange() {
+    //카드를 다 지우고
+    clearCarpet();
+    //랜덤 카드를 뿌린다.
+    arrangeCard();
+
+}
+
+function clearCarpet() {
+    cardCarpet.innerHTML='';
+}
+
+
+//게임 진행 메소드들
+    var cardArr = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",
+                "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25",
+                "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38",
+                "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51"
+            ];
+     var MAX_CARD = 52;
+     var firstCard = null;
+     var cardCarpet = document.getElementById("card-carpet");
+     var gameInfo = document.getElementById("game-info");
+     var score;
+
+     
+     //0.창이 열리면 카드를 뿌린다.
+     window.onload = arrangeCard;
+
+     function arrangeCard() {
+         score=26;
+         gameInfo.innerHTML="카드를 뒤집어서 짝을 맞춰 보세요. 남은 카드 짝 : "+score;
+         //0.1배열을 섞는다.
+        cardArr.sort((a,b)=>Math.floor(Math.random()*3-1));
+        
+        var cardRow = {};
+        for(i=0; i<MAX_CARD; i++) {
+            //0.2카드를 13장씩 담을 줄을 생성    
+            if(i%13==0) {
+                cardRow=document.createElement("div");
+                cardRow.className="card-row";
+            }
+            //0.2.1카드 div 생성, 프론트백 이미지 넣고 이벤트리스너를 단다. clickCard            
+            var card=document.createElement("div");
+            card.className="card";            
+            card.addEventListener("click", clickCard);
+            var front=document.createElement("img");
+            front.className="front";
+            //id에 카드 번호를 저장한다.
+            front.id=cardArr[i];
+            front.src=cardArr[i]+".png";
+            var back=document.createElement("img");
+            back.className="back";
+            back.src='back.png';
+            back.id=cardArr[i];
+            card.appendChild(back);
+            card.appendChild(front);            
+            //카드 줄에 카드를 담는다.
+            cardRow.appendChild(card);
+            if(i%13==12) {
+                //0.2.2카드 한줄을 카펫에 담는다.
+                cardCarpet.appendChild(cardRow);
+            }
+        }
+     }
+
+     //1.카드를 클릭하면
+     function clickCard(event) {
+        //1.1 이미 뒤집힌 카드인지 확인
+        console.log(event.target);
+        var back = event.target;
+        var opacity = getComputedStyle(back).opacity;
+        //이미 뒤집히지 않았다면 뒤집는다.
+        if(opacity > 0) {            
+            flip(event.target); 
+            //1.1.1 첫번쨰 카드인지 확인, 맞으면 저장한다.
+            if(!firstCard) {
+                console.log("첫카드 저장");
+                firstCard=event.target;            
+            }
+            //1.1.2 두번쨰 카드면 첫째카드와 비교한다.
+            else {
+                compare(event.target);
+            }
+        }
+     }
+     
+     //(1.1)카드 뒤집기
+     function flip(clickedCard) {
+        clickedCard.setAttribute("style", "opacity:0;");
+     }
+
+     //(1.1.2)뒤집힌 두 카드 비교하기
+     function compare(clickedCard) {
+        //console.log("컴페어");
+        var firstNum=firstCard.id;
+        var secondNum=clickedCard.id;
+        console.log(firstNum+" "+secondNum);
+        //0.첫카드 정보를 초기화한다.
+        
+        //1.두 카드 짝이 맞으면
+        if(Math.abs(firstNum-secondNum)===26) {
+            //1.1맞은 것을 알려주고 점수 업
+            score -= 1;
+            setScore(true);
+            firstCard=null;
+            //1.1.1모든 짝을 다 맞추었다면 축하하기
+            if(score==0) {
+                gameInfo.innerHTML='축하합니다, 다 맞추었습니다.';
+            }
+  
+        //2.짝이 다르면
+        } else {
+            //2.1틀린것을 알려주고 뒤집힌 카드를 잠깐 보여준다. 그동안 카드를 클릭하지못하게한다. 그리고 다시 뒤집는다. 
+            var cards=document.getElementsByClassName("card");
+            for(i=0; i<cards.length; i++) {
+                cards[i].removeEventListener("click", clickCard);
+            }
+            setScore(false);        
+            setTimeout(function() {flipBack(clickedCard)},1000);
+        }
+     }
+
+     //뒤집었던 두 카드를 다시 뒤집는 메소드. 다시 카드를 클릭할수있게한다.
+     function flipBack(clickedCard) {
+        clickedCard.setAttribute("style", "opacity:"+opacity+";");  
+        firstCard.setAttribute("style", "opacity:"+opacity+";"); 
+        var cards=document.getElementsByClassName("card");
+        for(i=0; i<cards.length; i++) {
+                cards[i].addEventListener("click", clickCard);
+        }
+        firstCard=null; 
+     }
+
+     //점수를 알려주는 메서드
+     function setScore(flag) {
+         if(flag) {
+            gameInfo.innerHTML="맞았습니다! 남은 카드 짝 : "+score;
+         } else {
+            gameInfo.innerHTML="틀렸습니다. 남은 카드 짝 : "+score;
+         }
+        
+     }
+
+
+
+</script>
+
+</html>
